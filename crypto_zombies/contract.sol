@@ -8,6 +8,13 @@ contract ZombieFactory{
     uint dnaDigits = 16;
     uint dnaModulus = 10 ** dnaDigits;
 
+    // Events are a way for your contract to communicate that
+    // something happened on the blockchain to your app
+    // front-end, which can be 'listening' for certain events
+    // and take action when they happen.
+    // This particular event will fire when a new zombie is added.
+    event NewZombie(uint zombieId, string name, uint dna);
+
     // Structs as normal languages
     // Data type with other data types
     struct Zombie {
@@ -25,7 +32,8 @@ contract ZombieFactory{
     // By default we should make all functions private, and then
     // if needed public;
     function _createZombie(string _name, uint _dna) private{
-        zombies.push(Zombie(_name, _dna));
+        uint id = zombies.push(Zombie(_name, _dna)) - 1;
+        emit NewZombie(id, _name, _dna);
     }
 
     // The view modifier means that the function will not use the values
@@ -40,4 +48,6 @@ contract ZombieFactory{
         uint randDna = _generateRandomDna(_name);
         _createZombie(_name, randDna);
     }
+
+    
 }
