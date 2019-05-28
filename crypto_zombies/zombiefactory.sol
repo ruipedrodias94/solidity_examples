@@ -25,14 +25,26 @@ contract ZombieFactory{
     // Arrays, declared as normal too
     Zombie[] public zombies;
 
+    // Each account has an address -> Unique identifier
+    // Mappings are another way of storing organized data in Solidity.
+    // A mapping is essentially a key-value store for storing and looking up data.
+    // In this case, we will use an uint to lookup for an address
+    mapping (uint => address) public zombieToOwner;
+
+    mapping (address => uint) ownerZombieCount;
+
     // Arguments should follow the convention with the underscore
     // before the argument name (_)
     // Also, when a function is private we should use (_)
     // before the name
     // By default we should make all functions private, and then
     // if needed public;
-    function _createZombie(string _name, uint _dna) private{
+    function _createZombie(string _name, uint _dna) internal{
         uint id = zombies.push(Zombie(_name, _dna)) - 1;
+        // msg.sender => the address of the person who called the function
+        // Giving the msg.sender address to the id of the Zombie
+        zombieToOwner[id] = msg.sender;
+        ownerZombieCount[msg.sender] ++;
         emit NewZombie(id, _name, _dna);
     }
 
@@ -43,11 +55,12 @@ contract ZombieFactory{
         return rand % dnaModulus;
     }
 
+    // require makes it so that the function will throw an error and
+    // stop executing if some condition is not true
     // Normal use case of a function call
     function createRandomZombie(string _name) public {
+        require(ownerZombieCount[msg.sender] == 0);
         uint randDna = _generateRandomDna(_name);
         _createZombie(_name, randDna);
     }
-
-    
 }
